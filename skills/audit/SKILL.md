@@ -1,9 +1,10 @@
 ---
 name: audit
 description: |
-  Pre-launch and ongoing DSGVO/Abmahn/UrhG compliance audit for German web apps. Walks the target project's codebase, docs, and runtime against a curated findings file from the de-legal-toolkit. Phases cover static resources, runtime behaviour, legal docs (Impressum/Datenschutz/AGB/Widerruf), sub-processors, music-library copyright, and image attribution. Activate on "run pre-launch audit", "compliance audit", "DSGVO audit", "Abmahn-Hygiene", "re-audit after new finding". NOT for legal research (use legal-research skill), not for code-level rewrites (just identifies issues).
+  User-invocable only via /audit — not auto-triggered. Pre-launch and ongoing DSGVO/Abmahn/UrhG compliance audit for German web apps. Walks the target project's codebase, docs, and runtime against a curated findings file from the de-legal-toolkit. Eight phases cover static resources, runtime behaviour, legal docs (Impressum/Datenschutz/AGB/Widerruf), sub-processors, music-library copyright, image attribution, e-commerce (Bestellbutton + Kündigungsbutton + Widerrufsbutton), and AI Act Art. 50.
 metadata:
   category: Compliance & Audit
+  invocation: user-only
   pairs-with:
     - skill: legal-research
       reason: legal-research updates the findings catalog; audit applies it to a project.

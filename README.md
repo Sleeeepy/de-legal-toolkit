@@ -4,6 +4,8 @@
 
 Four Claude Code skills + three utility scripts for solo / small-team operators of German web apps who want to keep their DSGVO / Abmahn / UrhG compliance current without paying €30/month to a compliance SaaS.
 
+All four skills are **user-invocable only** (typed as `/audit`, `/legal-research`, `/compliance-init`, `/defense`). They do not auto-trigger on natural-language prompts — see [§ Design: user-invocable only](#design-user-invocable-only) below.
+
 **Skills:**
 
 - **`legal-research`** — agent-powered research over Tier-1 German legal sources (gesetze-im-internet.de, BGH, BfDI/LfDI, openjur.de, dejure.org). Outputs structured citations. **Runs from the toolkit repo only** — its output is committed to `findings/`.
@@ -119,6 +121,16 @@ From within the toolkit repo:
 ```
 
 The skill spawns research subagents against BGH/ECJ, OLG/LG, and Tier-3 narrative sources. New findings get reviewed by the maintainer, then committed to `findings/_current.md` and `findings/lifecycle.json`. The maintainer then tags the commit `findings-YYYY-MM-DD` and publishes a GitHub release with the diff as release notes.
+
+## Design: user-invocable only
+
+All four skills declare themselves user-invocable only — they fire when you type `/audit`, `/legal-research`, `/compliance-init`, or `/defense`, and not otherwise.
+
+This is deliberate. A compliance audit is a quarterly-or-ad-hoc operation, not a thing you want Claude reaching for whenever the conversation drifts past "Datenschutz" or "Impressum". If these skills carried the typical `Activate on …` trigger list, every project you work in would have them lurking in the global skill-suggestion space, competing for attention with your daily-dev skills (TDD, diagnose, review, etc.).
+
+The trade-off: Claude won't proactively suggest running an audit when a relevant prompt comes up. You have to remember to run `/audit` before launch, after a major surface change, or when a `findings-*` release lands. The README's [Staying updated as a consumer](#staying-updated-as-a-consumer) section is built around that — passive Watch-Releases notification + explicit re-run.
+
+If you'd prefer auto-suggestion for a specific skill, edit its `SKILL.md` frontmatter: remove the `User-invocable only via /X — not auto-triggered.` lead and the `invocation: user-only` metadata field, then add an `Activate on "…", "…"` trigger list. The skills work either way; the toolkit ships with the conservative default.
 
 ## Staying updated as a consumer
 

@@ -1,9 +1,10 @@
 ---
 name: compliance-init
 description: |
-  Onboard a project to the de-legal-toolkit. Scans the project's package.json, CLAUDE.md, source tree, and database to detect which compliance phases apply, then writes a compliance.yml at the project root that drives subsequent audit runs. Activate on "set up compliance audit", "onboard project to toolkit", "enroll project for compliance", "generate compliance.yml", "configure pre-launch audit".
+  User-invocable only via /compliance-init — not auto-triggered. Onboards a project to the de-legal-toolkit. Scans the project's package.json, CLAUDE.md, source tree, and database to detect which compliance phases apply, then writes a compliance.yml at the project root that drives subsequent audit runs. Run once per project at onboarding.
 metadata:
   category: Compliance & Audit
+  invocation: user-only
   pairs-with:
     - skill: audit
       reason: compliance-init writes the config file that audit consumes.

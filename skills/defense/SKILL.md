@@ -1,9 +1,10 @@
 ---
 name: defense
 description: |
-  Assess an incoming Abmahnung / cease-and-desist letter against the toolkit's findings catalogue and the project's actual codebase. Produces a factual claim assessment, risk score, options menu, redline of the demanded Unterlassungserklärung, and three draft reply letter patterns (demand-evidence / narrowed-Unterlassung / reject-as-unfounded). Activate on "received Abmahnung", "got cease and desist", "Abmahn letter assessment", "responding to legal letter", "Unterlassungserklärung review", "DSGVO claim letter". NOT a substitute for a Fachanwalt — outputs are decision-support, not legal advice.
+  User-invocable only via /defense — not auto-triggered. Assesses an incoming Abmahnung / cease-and-desist letter against the toolkit's findings catalogue and the project's actual codebase. Produces a factual claim assessment, risk score, options menu, redline of the demanded Unterlassungserklärung, and three draft reply letter patterns (demand-evidence / narrowed-Unterlassung / reject-as-unfounded). NOT a substitute for a Fachanwalt — outputs are decision-support, not legal advice.
 metadata:
   category: Defense & Response
+  invocation: user-only
   pairs-with:
     - skill: audit
       reason: defense runs targeted audit phases to verify whether the claimed violation actually exists on the live site.
