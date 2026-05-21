@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question about usage
+    url: https://github.com/Sleeeepy/de-legal-toolkit/discussions
+    about: For installation / configuration / "is this the right tool for X" questions, open a Discussion instead of an issue.
+  - name: Read CONTRIBUTING.md first
+    url: https://github.com/Sleeeepy/de-legal-toolkit/blob/main/CONTRIBUTING.md
+    about: Covers what gets accepted, what gets rejected, citation conventions.

@@ -1,0 +1,97 @@
+{
+  "_schema": {
+    "id_format": "FIND-YYYY-NNN or FIND-WAVE-NNN or IMMINENT-YYYY-NNN or DEFENSIVE-YYYY-NNN or FIND-POSTURE-YYYY-SLUG",
+    "status_values": ["active", "superseded", "withdrawn", "pending-higher-court", "defensive", "imminent", "posture"],
+    "fields": {
+      "id": "matching the entry id in _current.md",
+      "status": "one of status_values",
+      "since": "ISO date this status was assigned",
+      "supersedes": "optional — id of finding this replaces",
+      "superseded_by": "optional — id of finding that replaced this",
+      "note": "free text — why the status was set"
+    }
+  },
+  "findings": [
+    {
+      "id": "FIND-2026-001",
+      "status": "active",
+      "since": "2026-05-21",
+      "note": "LG München I, current standard for § 312k flow design."
+    },
+    {
+      "id": "FIND-2026-002",
+      "status": "active",
+      "since": "2026-05-21",
+      "note": "OLG Schleswig, revision denied — settled at OLG level."
+    },
+    {
+      "id": "FIND-2026-003",
+      "status": "active",
+      "since": "2026-05-21",
+      "note": "OLG Frankfurt, broadly published Jan 2026."
+    },
+    {
+      "id": "FIND-2026-004",
+      "status": "defensive",
+      "since": "2026-05-21",
+      "note": "ECJ Brillen Rottler — defensive shield, not a compliance trigger."
+    },
+    {
+      "id": "FIND-WAVE-001",
+      "status": "pending-higher-court",
+      "since": "2025-08-28",
+      "note": "BGH VI ZR 258/24 ECJ referral; lower courts staying proceedings."
+    },
+    {
+      "id": "FIND-WAVE-002",
+      "status": "active",
+      "since": "2014-01-01",
+      "note": "§ 312j BGB Bestellbutton — steady-state enforcement."
+    },
+    {
+      "id": "FIND-WAVE-003",
+      "status": "active",
+      "since": "2020-05-28",
+      "note": "BGH Cookie II + § 25 TDDDG codification."
+    },
+    {
+      "id": "FIND-WAVE-004",
+      "status": "active",
+      "since": "2011-02-10",
+      "note": "BGH Double-Opt-In + § 7 UWG."
+    },
+    {
+      "id": "IMMINENT-2026-001",
+      "status": "imminent",
+      "since": "2026-05-21",
+      "trigger_date": "2026-06-19",
+      "note": "Electronic Widerrufsbutton — BGB amendment."
+    },
+    {
+      "id": "IMMINENT-2026-002",
+      "status": "imminent",
+      "since": "2026-05-21",
+      "trigger_date": "2026-08-02",
+      "note": "AI Act Art. 50 — no grace period."
+    },
+    {
+      "id": "DEFENSIVE-2026-001",
+      "status": "defensive",
+      "since": "2026-05-21",
+      "note": "OLG Frankfurt — undercuts wave economics."
+    },
+    {
+      "id": "DEFENSIVE-2026-002",
+      "status": "defensive",
+      "since": "2025-08-28",
+      "note": "BGH→ECJ referral freezes Google Fonts wave."
+    },
+    {
+      "id": "FIND-POSTURE-2026-AI-TRAIL",
+      "status": "posture",
+      "since": "2026-05-21",
+      "trigger_date": "2026-08-02",
+      "note": "Defensive evidence-trail for Art. 50(4) editorial-responsibility carve-out. Per-surface MEDIUM. Re-classify after Commission Art. 50 guidelines or first OLG ruling."
+    }
+  ]
+}

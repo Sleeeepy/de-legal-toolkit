@@ -1,0 +1,13 @@
+.DS_Store
+*.swp
+.idea/
+.vscode/
+node_modules/
+.claude/settings.local.json
+
+# Launch / marketing copy — published elsewhere, not part of the toolkit
+docs/launch-post.*.md
+
+# Research-scan working data — per-domain results are private to the operator
+scripts/results/
+scripts/domains.csv
