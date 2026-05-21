@@ -32,7 +32,7 @@ Files (project-specific paths — discover them):
 - [ ] OS-Plattform link (Art. 14 ODR-VO) — required if any B2C online transaction takes place
 - [ ] § 36 VSBG Hinweis on Verbraucherschlichtungsstelle participation
 
-**Templates per Rechtsform** in the `legal-impressum` skill at `skills/legal-impressum/SKILL-GERMANY.md`.
+The audit flags missing elements with the relevant citation; drafting the actual text from this checklist is a 20-30 minute manual task per Rechtsform.
 
 ## 3b. Datenschutzerklärung — Art. 13/14 DSGVO
 

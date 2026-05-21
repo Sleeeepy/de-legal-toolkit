@@ -99,7 +99,7 @@ Final section: aggregated punch list ranked by severity (`high` → `low`) with 
   since the last audit re-triggers its posture check.
 - **Case-law sweep since {date of findings/_current.md last update}.** The
   audit applies the findings catalogue as-of the toolkit's last release.
-  Run Skill(legal-research) — case-law sweep — to refresh before
+  Run /legal-research — case-law sweep — to refresh before
   treating "no current finding" as authoritative.
 - **Paid-launch items deferred to checkout milestone.** PAngV pricing rules,
   § 356(4) BGB digital-service withdrawal exception, Stripe AVV, electronic

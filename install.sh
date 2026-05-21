@@ -19,8 +19,8 @@ set -euo pipefail
 TOOLKIT="$(cd "$(dirname "$0")" && pwd)"
 GLOBAL="${CLAUDE_GLOBAL_SKILLS:-$HOME/.claude/skills}"
 
-LOCAL_SKILLS=(legal-research audit legal-impressum compliance-init defense)
-GLOBAL_SKILLS=(audit legal-impressum compliance-init defense)
+LOCAL_SKILLS=(legal-research audit compliance-init defense)
+GLOBAL_SKILLS=(audit compliance-init defense)
 
 echo "Toolkit: $TOOLKIT"
 echo "Global:  $GLOBAL"

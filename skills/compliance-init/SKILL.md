@@ -24,8 +24,8 @@ This is a one-shot initialiser. Run it once per project. Re-run only when the pr
 - Project added a major surface (Stripe checkout, AI features, music library) and the existing `compliance.yml` is now stale
 
 **Do NOT use for:**
-- Running the audit (that's `Skill(audit)`)
-- Updating findings (that's `Skill(legal-research)` from inside the toolkit)
+- Running the audit (that's `/audit`)
+- Updating findings (that's `/legal-research` from inside the toolkit)
 
 ---
 
@@ -161,7 +161,7 @@ Default values to propose:
    ask whether to add it. Default y.
 
 8. After write, suggest next steps:
-   - "Run Skill(audit) now for a baseline."
+   - "Run /audit now for a baseline."
    - "Click Watch → Custom → Releases on the de-legal-toolkit repo to be
       notified when findings update."
 ```
@@ -175,7 +175,7 @@ Default values to propose:
 # regenerate based on current project state.
 
 # Which audit phases apply. Toggle off any phase that genuinely doesn't apply
-# to skip it during Skill(audit) runs.
+# to skip it during /audit runs.
 applies:
   static_resources: true      # phase 1
   runtime_playwright: true    # phase 2
@@ -197,7 +197,7 @@ operator_bundesland: Brandenburg
 # Pinned toolkit release the project was last audited against. The audit skill
 # writes this on each run. Compare against the toolkit's latest release tag to
 # decide whether a re-audit is warranted.
-# Empty on first install; set by Skill(audit).
+# Empty on first install; set by /audit.
 findings_pinned_version: ""
 
 # Where the audit posts its per-finding output. See skills/audit/sinks/ for details.
@@ -227,7 +227,7 @@ sub_processor_regions_verified: {}
 
 ### Never:
 
-1. **Auto-create legal documents.** compliance-init detects whether they exist; it does NOT generate them. Use `Skill(legal-impressum)` for Impressum drafting.
+1. **Auto-create legal documents.** compliance-init detects whether they exist; it does NOT generate them. Drafting is a manual task against the audit's Phase 3 checklists.
 2. **Overwrite compliance.yml without confirmation.** Always show the proposed file and ask before writing.
 3. **Assume English signal words.** Detection patterns should include German equivalents (kaufen / Schwangerschaft / Abo etc.) because the projects are DE-targeted.
 4. **Run the audit automatically after init.** The user explicitly invokes audit when ready. Don't pre-empt.
@@ -254,7 +254,7 @@ sub_processor_regions_verified: {}
 ## Example session
 
 ```
-User: "Skill(compliance-init) — onboard this project."
+User: "/compliance-init — onboard this project."
 
 Skill:
 1. Detect project root from pwd → /path/to/your-project
@@ -279,7 +279,7 @@ Skill:
 8. User: "y"
 9. `audit-results/` not in .gitignore? Not relevant (sink = github_issues).
 10. Write file. Print:
-    "Done. Run Skill(audit) for a baseline pre-launch audit. Watch the
+    "Done. Run /audit for a baseline pre-launch audit. Watch the
      de-legal-toolkit repo (Releases only) to be notified when findings
      update — each new `findings-*` release is a candidate re-audit trigger."
 ```

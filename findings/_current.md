@@ -1,7 +1,7 @@
 # Current findings — DE compliance landscape
 
 **Last updated:** 2026-05-21
-**Update mechanism:** Run `Skill(legal-research)` with a "case-law sweep" prompt; new findings get committed here after review.
+**Update mechanism:** Run `/legal-research` with a "case-law sweep" prompt; new findings get committed here after review.
 
 This file is the canonical input to the `audit` skill. Every entry has a `status` in `lifecycle.json`.
 

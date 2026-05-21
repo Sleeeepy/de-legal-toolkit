@@ -2,23 +2,20 @@
 
 > ⚠️ **NOT LEGAL ADVICE.** Decision-support tooling for solo / small-team German operators. For contested matters or specific interpretation questions, consult a Fachanwalt für IT-Recht. The toolkit can help you decide whether to engage one and what to ask; it cannot replace one.
 
-Five Claude Code skills + two utility scripts for solo / small-team operators of German web apps who want to keep their DSGVO / Abmahn / UrhG compliance current without paying €30/month to a compliance SaaS.
+Four Claude Code skills + three utility scripts for solo / small-team operators of German web apps who want to keep their DSGVO / Abmahn / UrhG compliance current without paying €30/month to a compliance SaaS.
 
-**First-party skills** (built and maintained here):
+**Skills:**
 
 - **`legal-research`** — agent-powered research over Tier-1 German legal sources (gesetze-im-internet.de, BGH, BfDI/LfDI, openjur.de, dejure.org). Outputs structured citations. **Runs from the toolkit repo only** — its output is committed to `findings/`.
-- **`audit`** — code-walking audit that applies the curated findings to a project across 8 phases: static external resources, runtime Playwright sweep, legal docs (Impressum/Datenschutz/AGB/Widerruf), sub-processor reconciliation, music-library copyright, image attribution, e-commerce (Bestellbutton + Kündigungsbutton + Widerrufsbutton), AI Act Art. 50.
-- **`compliance-init`** — scans a project's package.json + source tree + DB and writes a `compliance.yml` declaring which audit phases apply. Run once per project at onboarding.
-- **`defense`** — assess an incoming Abmahnung / cease-and-desist letter against the findings catalogue and the project's actual codebase. Outputs risk score, options menu, Unterlassung redline, and three reply-letter templates (demand-evidence / narrowed-Unterlassung / rejection). Every output marked NOT LEGAL ADVICE.
-
-**Third-party skills** (absorbed for one-stop install — credit and authorship retained in their original SKILL.md files):
-
-- **`legal-impressum`** — Rechtsform-specific Impressum templates and statutory checklists; used by audit Phase 3a. Multi-jurisdictional (DE / AT / EU / world); use `SKILL-GERMANY.md` for DE.
+- **`audit`** — code-walking audit that applies the curated findings to a project across 8 phases: static external resources, runtime Playwright sweep, legal docs (Impressum / Datenschutz / AGB / Widerruf), sub-processor reconciliation, music-library copyright, image attribution, e-commerce (Bestellbutton + Kündigungsbutton + Widerrufsbutton), AI Act Art. 50.
+- **`compliance-init`** — scans a project's `package.json` + source tree + DB and writes a `compliance.yml` declaring which audit phases apply. Run once per project at onboarding.
+- **`defense`** — assesses an incoming Abmahnung / cease-and-desist letter against the findings catalogue and the project's actual codebase. Outputs risk score, options menu, Unterlassungserklärung redline, and three reply-letter templates (demand-evidence / narrowed-Unterlassung / rejection). Every output marked NOT LEGAL ADVICE.
 
 **Utility scripts** (in `scripts/`):
 
-- **`dpia-generator.py`** — generates an Art. 35 DSGVO DPIA report from a JSON input template. Extracted from `gdpr-dsgvo-expert`. Useful for projects that trigger the DPIA threshold (e.g. health-adjacent data processing).
-- **`dsar-tracker.py`** — SQLite-backed Data Subject Rights tracker with deadline alerts. Extracted from `gdpr-dsgvo-expert`. Useful operationally once a project starts receiving DSAR requests post-launch.
+- **`dpia-generator.py`** — generates an Art. 35 DSGVO DPIA report from a JSON input template. Useful for projects that trigger the DPIA threshold (e.g. health-adjacent data processing).
+- **`dsar-tracker.py`** — SQLite-backed Data Subject Rights tracker with deadline alerts. Useful operationally once a project starts receiving DSAR requests post-launch.
+- **`research-sample-scan.py`** — anonymised aggregate Phase 1 + Phase 2 sweep across sampled DE SME sites. Produces a public exposure-statistics report; no per-domain disclosure.
 
 Plus a **curated `findings/` directory** that's the canonical input to the audit. Commit-tracked. Reviewable. No telemetry.
 
@@ -55,8 +52,8 @@ cd ~/de-legal-toolkit
 
 `install.sh` creates two sets of symlinks:
 
-1. **Toolkit-local** at `~/de-legal-toolkit/.claude/skills/` → all five skills, so when you open Claude Code inside the toolkit (to do research and commit findings) every skill is available.
-2. **Global** at `~/.claude/skills/` → only the consumer-side skills (`audit`, `compliance-init`, `legal-impressum`, `gdpr-dsgvo-expert`), so they're reachable from any project you happen to be in. `legal-research` is intentionally NOT global — it only runs from the toolkit, where its output is committed to `findings/`.
+1. **Toolkit-local** at `~/de-legal-toolkit/.claude/skills/` → all four skills, so when you open Claude Code inside the toolkit (to do research and commit findings) every skill is available.
+2. **Global** at `~/.claude/skills/` → only the consumer-side skills (`audit`, `compliance-init`, `defense`), so they're reachable from any project you happen to be in. `legal-research` is intentionally NOT global — it only runs from the toolkit, where its output is committed to `findings/`.
 
 `audit` reads findings via its own symlink — when the symlink resolves, the relative path `../../findings/_current.md` lands inside the toolkit. No separate findings symlink is needed.
 
@@ -73,11 +70,10 @@ cd ~/de-legal-toolkit && ./uninstall.sh
 
 ## Onboard a project
 
-From within the project root:
+From within the project root, in Claude Code:
 
 ```
-# In Claude Code:
-> Skill(compliance-init) — onboard this project.
+> /compliance-init
 ```
 
 `compliance-init` scans `package.json`, `CLAUDE.md`, and the source tree to detect which audit phases apply, then drafts a `compliance.yml` at the project root. Confirm and write.
@@ -87,7 +83,7 @@ From within the project root:
 From within an onboarded project (one that has a `compliance.yml`):
 
 ```
-> Skill(audit) — pre-launch audit on this repo.
+> /audit
 ```
 
 The audit skill will:
@@ -98,17 +94,28 @@ The audit skill will:
 
 Typical wall-clock: 7-10 minutes for a full 8-phase sweep.
 
-For a single-phase refresh:
+For a single-phase refresh, add a hint in natural language:
 
 ```
-> Skill(audit) — Phase 5 only, music-library copyright check.
+> /audit — Phase 5 only, music-library copyright check.
 ```
+
+## Respond to an Abmahnung
+
+If a cease-and-desist letter arrives, from within the affected project:
+
+```
+> /defense — assess this letter [attach or paste]
+```
+
+The skill reads the letter, checks the alleged violation against the findings catalogue and the actual codebase, and emits a risk score, an Unterlassungserklärung redline, and three reply-letter templates. Every output is stamped NOT LEGAL ADVICE — for the final letter, run it past a Fachanwalt.
 
 ## Refreshing findings
 
+From within the toolkit repo:
+
 ```
-# From within the toolkit repo:
-> Run a case-law sweep with Skill(legal-research) — what's new since {date of last update}?
+> /legal-research — case-law sweep, what's new since {date of last update}?
 ```
 
 The skill spawns research subagents against BGH/ECJ, OLG/LG, and Tier-3 narrative sources. New findings get reviewed by the maintainer, then committed to `findings/_current.md` and `findings/lifecycle.json`. The maintainer then tags the commit `findings-YYYY-MM-DD` and publishes a GitHub release with the diff as release notes.
@@ -131,8 +138,6 @@ The `audit` skill records this on each run so you have a clean version history p
 
 **Recommended cadence: quarterly.** Statutes phase in with notice (the AI Act gave a 2-year warning; the electronic Widerrufsbutton gives 6 months). Case-law wave-triggers are rare (~1 per 3-5 years) and well-publicised when they hit; you'll see it on heise.de before any monthly cron would catch it.
 
-A monthly automated run is supported via `.github/workflows/quarterly-research.yml` if you want it.
-
 ## Repo structure
 
 ```
@@ -149,24 +154,31 @@ de-legal-toolkit/
 │   │       └── source-urls-cheatsheet.md
 │   ├── audit/                            # audit skill (global)
 │   │   ├── SKILL.md
-│   │   └── checks/
-│   │       ├── phase-1-static-resources.md
-│   │       ├── phase-2-runtime.md
-│   │       ├── phase-3-docs.md
-│   │       ├── phase-4-sub-processors.md
-│   │       ├── phase-5-copyright-music.md
-│   │       ├── phase-6-image-attribution.md
-│   │       ├── phase-7-ecommerce.md
-│   │       └── phase-8-ai-act.md
+│   │   ├── checks/
+│   │   │   ├── phase-1-static-resources.md
+│   │   │   ├── phase-2-runtime.md
+│   │   │   ├── phase-3-docs.md
+│   │   │   ├── phase-4-sub-processors.md
+│   │   │   ├── phase-5-copyright-music.md
+│   │   │   ├── phase-6-image-attribution.md
+│   │   │   ├── phase-7-ecommerce.md
+│   │   │   └── phase-8-ai-act.md
+│   │   └── sinks/
+│   │       ├── github-issues.md
+│   │       ├── gitlab-issues.md
+│   │       └── local-markdown.md
 │   ├── compliance-init/                  # project onboarding skill (global)
 │   │   └── SKILL.md
-│   ├── legal-impressum/                  # third-party: Rechtsform-specific Impressum
-│   └── gdpr-dsgvo-expert/                # third-party: DPIA generator + DSAR tracker
+│   └── defense/                          # Abmahn response skill (global)
+│       ├── SKILL.md
+│       └── references/
+├── scripts/
+│   ├── dpia-generator.py
+│   ├── dsar-tracker.py
+│   └── research-sample-scan.py
 ├── findings/
 │   ├── _current.md                       # canonical baseline
 │   └── lifecycle.json                    # per-finding status
-├── .github/workflows/
-│   └── (v0.2+ — research cron, audit trigger)
 └── README.md
 ```
 

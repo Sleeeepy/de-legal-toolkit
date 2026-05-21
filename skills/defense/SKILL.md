@@ -55,7 +55,7 @@ Run from the project root that received the letter. The skill needs to audit the
 ## Workflow
 
 ```
-1. User invokes Skill(defense) from the project root.
+1. User invokes /defense from the project root.
 2. Skill prompts: "Paste the letter text. Redact personal info first if you want."
 3. User pastes (or attaches PDF; skill will OCR if possible).
 4. Skill parses for:

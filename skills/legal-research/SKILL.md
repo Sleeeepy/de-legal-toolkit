@@ -1,14 +1,12 @@
 ---
 name: legal-research
 description: |
-  Expert legal-research agent for German digital, consumer, and copyright law. Knows authoritative sources (gesetze-im-internet.de, BfDI/LfDI, BGH, dejure.org, openjur.de), URL patterns, the 2024-2026 case-law landscape (TMG→DDG, DSA, AI Act, Google-Fonts wave, cookie rulings), UrhG + KUG basics, and how to delegate web research to subagents. Activate on "German law research", "DSGVO ruling", "Abmahn case law", "BGH/OLG/LG ruling lookup", "find current statute", "verify legal citation", "UrhG / copyright lookup", "pre-launch DE compliance scan". NOT for legal advice, not for code-walking (use the audit skill), not for drafting Impressum text (use legal-impressum).
+  Expert legal-research agent for German digital, consumer, and copyright law. Knows authoritative sources (gesetze-im-internet.de, BfDI/LfDI, BGH, dejure.org, openjur.de), URL patterns, the 2024-2026 case-law landscape (TMG→DDG, DSA, AI Act, Google-Fonts wave, cookie rulings), UrhG + KUG basics, and how to delegate web research to subagents. Activate on "German law research", "DSGVO ruling", "Abmahn case law", "BGH/OLG/LG ruling lookup", "find current statute", "verify legal citation", "UrhG / copyright lookup", "pre-launch DE compliance scan". NOT for legal advice, not for code-walking (use the audit skill).
 metadata:
   category: Research & Analysis
   pairs-with:
     - skill: audit
       reason: legal-research updates the findings catalog; audit applies findings to a target project's code and docs.
-    - skill: legal-impressum
-      reason: legal-research researches what current law says; legal-impressum applies it to Impressum-doc drafting (use SKILL-GERMANY.md for DE projects).
 ---
 
 # German Legal Research Agent
@@ -29,8 +27,8 @@ Research authoritative German legal sources to answer questions about DSGVO, BDS
 
 **Do NOT use this skill for:**
 - Giving legal advice or interpreting the law for a specific case. Surface the current state of the law and the relevant authorities; the user decides what it means for them. If they need an answer, route them to a Fachanwalt.
-- Walking codebase for code-level DSGVO issues (use `gdpr-dsgvo-expert`).
-- Drafting Impressum/Datenschutz text (use `legal-impressum`).
+- Walking codebase for code-level DSGVO issues (use the `audit` skill).
+- Drafting Impressum/Datenschutz text — that's a manual task against the audit's Phase 3 checklist.
 
 ---
 

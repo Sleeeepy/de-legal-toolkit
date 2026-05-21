@@ -169,7 +169,7 @@ To save everyone time on rejected PRs:
 - **Not legal advice.** The toolkit produces structured pointers. For a contested interpretation in a real case, talk to a Fachanwalt für IT-Recht.
 - **Not a replacement for a real DPO** at scales where one is required (BDSG § 38: 20+ employees processing personal data automatically).
 - **Not a guarantee of compliance.** It catches what scalable-Abmahn lawyers can detect. A determined opponent with specific knowledge of your site can still find non-scalable issues.
-- **Not for non-DE jurisdictions.** AT-specific Impressum is partially covered via `legal-impressum/SKILL.md`; broader EU rules are in `legal-impressum/SKILL-EU.md`. For US / UK / CH-specific rules, this isn't the right toolkit.
+- **Not for non-DE jurisdictions.** The findings catalogue and audit checks are German-specific (DSGVO via BDSG, DDG, MStV, BGB, UrhG, KUG). For AT / CH / US / UK rules, this isn't the right toolkit.
 
 ---
 
