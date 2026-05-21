@@ -10,7 +10,7 @@ All four skills are **user-invocable only** (typed as `/audit`, `/legal-research
 
 - **`legal-research`** — agent-powered research over Tier-1 German legal sources (gesetze-im-internet.de, BGH, BfDI/LfDI, openjur.de, dejure.org). Outputs structured citations. **Runs from the toolkit repo only** — its output is committed to `findings/`.
 - **`audit`** — code-walking audit that applies the curated findings to a project across 8 phases: static external resources, runtime Playwright sweep, legal docs (Impressum / Datenschutz / AGB / Widerruf), sub-processor reconciliation, music-library copyright, image attribution, e-commerce (Bestellbutton + Kündigungsbutton + Widerrufsbutton), AI Act Art. 50.
-- **`compliance-init`** — scans a project's `package.json` + source tree + DB and writes a `compliance.yml` declaring which audit phases apply. Run once per project at onboarding.
+- **`compliance-init`** — scans a project's `package.json` + source tree + DB and writes a `compliance.yml` declaring which audit phases apply. Run at onboarding, then re-run whenever a new surface lands (Stripe / subscriptions / AI features / music library) so subsequent audits pick up the relevant phase.
 - **`defense`** — assesses an incoming Abmahnung / cease-and-desist letter against the findings catalogue and the project's actual codebase. Outputs risk score, options menu, Unterlassungserklärung redline, and three reply-letter templates (demand-evidence / narrowed-Unterlassung / rejection). Every output marked NOT LEGAL ADVICE.
 
 **Utility scripts** (in `scripts/`):
@@ -79,6 +79,8 @@ From within the project root, in Claude Code:
 ```
 
 `compliance-init` scans `package.json`, `CLAUDE.md`, and the source tree to detect which audit phases apply, then drafts a `compliance.yml` at the project root. Confirm and write.
+
+**Re-run on material surface changes.** Adding Stripe to a previously-free site, introducing a user-facing AI feature, or starting to host a music library all introduce new audit phases that `compliance.yml` won't pick up otherwise. Re-running `/compliance-init` is idempotent — it shows the existing config and proposes a diff.
 
 ## Run an audit
 
