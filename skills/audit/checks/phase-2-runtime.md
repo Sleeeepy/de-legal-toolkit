@@ -85,6 +85,16 @@ For each [FLAG], a row with: route, what fired, why it's a flag, citation, mitig
 One paragraph. PASS = no consent-required tech fires before consent on any public route.
 ```
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-2 issue's "Close gate" section. A phase-2 finding may only be closed when ALL apply:
+
+- [ ] Fresh-visitor headless Playwright sweep against the production URL (NOT a logged-in or pre-consented session) records zero cookies in the `[CONSENT-REQUIRED]` class and zero `localStorage` writes in the `[CONSENT-REQUIRED]` class.
+- [ ] Network requests on a fresh visit contain zero `[FLAG]` domains. Allow-list `[SELF]`, `[SUPABASE]`, `[R2]`, `[VERCEL]`, `[STRIPE]` (only on routes that touch checkout), `[FONT-INLINE]`.
+- [ ] If a cookie banner/CMP exists: nothing in the `[CONSENT-REQUIRED]` class fires BEFORE the user clicks. The banner itself does not preload any consent-required tracker.
+- [ ] Regression guard committed: a Playwright spec (or equivalent end-to-end script) that runs the sweep above on every PR and asserts the same conditions. Name the spec path in the close comment.
+- [ ] Re-audit of phase 2 with the toolkit at HEAD against the same production URL: this finding no longer detected.
+
 ## Citation chain
 
 - Pre-consent cookies → § 25 TDDDG + BGH I ZR 7/16 "Cookie II" (2020)

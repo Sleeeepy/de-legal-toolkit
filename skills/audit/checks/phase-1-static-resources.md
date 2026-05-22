@@ -78,6 +78,16 @@ Status: PASS | PASS-WITH-NOTES | FAIL
 One paragraph. Pass = no [FLAG] entries on a brower-rendered route. Fail = any [FLAG] on a public route.
 ```
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-1 issue's "Close gate" section. A phase-1 finding may only be closed when ALL apply:
+
+- [ ] Recursive grep across `src/` + `public/` (excluding `node_modules`, `.next`, `dist`) matches zero of the high-priority patterns listed above.
+- [ ] Every `<head>` font load goes through `next/font/google` (with inlining) or `next/font/local`; no `<link href="fonts.googleapis.com">` and no `@import url(...fonts.googleapis.com...)` anywhere reachable from a production-rendered route.
+- [ ] Every entry in `next.config.*` `images.remotePatterns` is justified by a documented purpose (comment, README row, or compliance note); zombie entries removed.
+- [ ] Build-time validator (regression guard) committed: a CI step or script that re-runs the grep above and fails the build on any hit. Name the script in the close comment.
+- [ ] Re-audit of phase 1 with the toolkit at HEAD: this finding no longer detected.
+
 ## Citation chain
 
 When raising a finding, always cite from `findings/_current.md`. If the pattern matches a finding, use its citation. If no finding matches but the pattern is on the high-priority list, cite the underlying ruling/statute referenced in `checks/` itself. If no finding and no ruling can be cited, mark "speculative — surface to legal-research for verification".

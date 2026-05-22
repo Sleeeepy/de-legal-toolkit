@@ -87,6 +87,47 @@ Only applies for B2C consumer e-commerce contracts.
 
 Per sub-section (3a / 3b / 3c / 3d), produce a checklist with each item flagged `[OK]` / `[MISSING]` / `[PARTIAL]` / `[N/A]` and a brief quote from the doc backing each finding. End each subsection with "Top 3 issues". Overall section ends with a single-paragraph verdict.
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-3 issue's "Close gate" section. The bullets vary by sub-section (3a / 3b / 3c / 3d) — the sink lifts the bullets matching the failing sub-section, not the entire phase-3 set.
+
+### Common to all sub-sections
+
+- [ ] Re-audit of phase 3 (specifically the failing sub-section) with the toolkit at HEAD: this finding no longer detected.
+- [ ] Every [MISSING] / [PARTIAL] item from the prior audit report is now [OK], with the verbatim quote from the doc captured in the re-audit log.
+
+### 3a. Impressum
+
+- [ ] Header reads "Angaben gemäß § 5 DDG"; zero remaining "§ 5 TMG" references anywhere in `src/`.
+- [ ] All applicable checklist items above [OK]; N/A items annotated with reason.
+
+### 3b. Datenschutz
+
+- [ ] Right-to-complaint section names the specific LfDI (cross-checked against `legal-research/references/lfdi-by-bundesland.md`); generic "die zuständige Datenschutzbehörde" replaced.
+- [ ] Zero remaining "§ 25 TTDSG" references; all replaced by "§ 25 TDDDG".
+- [ ] Sub-processor list in the doc matches `sub-processors.ts` 1:1 (cross-check from Phase 4).
+- [ ] Every Art. 6(1)(f) basis has its balancing test referenced (link or appendix).
+- [ ] Special-category data (Art. 9) processing, if any, uses Art. 9(2)(a) explicit consent, not Art. 6(1)(b).
+
+### 3c. AGB
+
+- [ ] Every § 309 Nr. 7 BGB unfair-clause-catalogue item reviewed and conformed.
+- [ ] Liability clauses do not exclude intent / gross negligence / personal injury / product liability.
+- [ ] If subscription product exists: § 312k Kündigungsbutton clause present (also gated by Phase 7b).
+- [ ] If B2C checkout exists: § 312j Bestellbutton clause + Art. 246a EGBGB pre-contractual info clause present (also gated by Phase 7a).
+
+### 3d. Widerrufsbelehrung
+
+- [ ] Muster-Widerrufsbelehrung and Muster-Widerrufsformular conform to BGB Anlagen 1 + 2 (verbatim or with documented justified deviations).
+- [ ] § 356(4) BGB early-performance carve-out explicitly stated if services are rendered before the 14-day period expires.
+- [ ] Post-19.06.2026: electronic Widerrufsbutton implemented (cross-check Phase 7c).
+
+### Regression guard
+
+For HIGH-severity phase-3 findings (stale statutory header, missing LfDI, missing § 309 Nr. 7 conformity):
+
+- [ ] Repo-level grep in CI that fails the build on `§ 5 TMG` / `§ 25 TTDSG` / generic-LfDI strings appearing in any legal doc page. Name the script in the close comment.
+
 ## Citation chain
 
 - Impressum requirements → § 5 DDG + § 18 Abs. 2 MStV + § 2 DL-InfoV

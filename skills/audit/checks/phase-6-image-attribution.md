@@ -116,6 +116,38 @@ Per finding: file, what's missing, citation, action.
 ### Verdict
 ```
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-6 issue's "Close gate" section. This is the canonical example of a phase where lifecycle markers and infra-only closes are the dominant failure mode — the bullets below exist to make those closes impossible.
+
+A phase-6 finding may only be closed when ALL apply:
+
+- [ ] Every image file (`.webp` / `.jpg` / `.png`) in every audited directory has a sibling `.meta.json` (or `.attribution.md`). Sidecar coverage is **100%**, not "100% of new uploads" or "100% of in-scope assets".
+- [ ] Sample 10 random sidecars: for **each**, the `source_url` resolves AND the license stated on the source page matches the sidecar's `license` field AND the `creator` is named (where the license requires it) AND `verified_on` is within the last 12 months. The sample is executed manually and the result captured in the close comment — not derived from "the schema validates".
+- [ ] Zero sidecars with `creator: null`, `source_url: null`, `license: "unknown"`, `license: "tbd"`, or `status` in (`pending-verification`, `pending-re-source`, `provisional`, `unverified`). If lifecycle markers were used during remediation, a deploy-time gate rejects them at release (see lifecycle-loophole subsection).
+- [ ] For every image of a recognisable person: `depicted_consent` populated with either (a) a § 23(1) KUG carve-out citation, or (b) a documented consent reference. `depicted_consent: "missing"` or absent counts as FAIL.
+- [ ] `/bildnachweise` page renders an entry for every CC-BY / CC-BY-SA / CC-BY-NC image on disk (or the image displays attribution adjacent to it at render time). Generic "Bilder von Pixabay/Unsplash" is not acceptable.
+- [ ] Re-audit of phase 6 with the toolkit at HEAD: sidecar coverage 100%, sample 10 passes, `/bildnachweise` complete.
+
+### Infrastructure vs data — mandatory split for this phase
+
+Phase 6 findings of the form "N user-facing assets, 0 attribution sidecars" almost always bundle infrastructure + data. The close gate splits them:
+
+- [ ] **Infrastructure**: sidecar JSON schema landed; a validator script (e.g. `scripts/validate-sidecars.mjs`) exits 0 on the current tree; an agent or generator exists to populate new sidecars on upload. Name the script + the agent in the close comment.
+- [ ] **Data**: every one of the N existing assets has a sidecar with **non-placeholder** values. Specifically: `source_url` resolves, `license` matches the source page, `creator` is populated when required. A sidecar that validates the schema but holds placeholders does NOT satisfy this bullet.
+
+Closing infrastructure alone is not closing. The Bildnachweise aggregator page renders against on-disk content — placeholder sidecars become a public self-incrimination document.
+
+### Lifecycle-state loophole
+
+The sidecar schema permits `status: pending-*` to support a remediation lifecycle. That permission is a closing loophole unless paired with a deploy-time gate:
+
+- [ ] CI / release script asserts: no sidecar in `public/images/**` has `status` in any `pending-*` / `provisional` / `unverified` value AND no sidecar has `creator: null` or `source_url: null`. Release blocks on any hit. Name the script in the close comment.
+
+### Regression guard (HIGH)
+
+- [ ] `scripts/validate-sidecars.mjs` (or equivalent) committed AND wired into CI on every PR AND wired into the release pipeline as a blocking step. The validator checks both schema conformity AND non-placeholder content (the two are independent — schema-valid placeholders are exactly the failure mode this phase exists to prevent).
+
 ## Citation chain
 
 - Image copyright → § 2(1) Nr. 5 UrhG (Lichtbildwerke) + § 72 UrhG (einfache Lichtbilder)

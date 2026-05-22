@@ -117,6 +117,35 @@ Status: PASS | PASS-WITH-NOTES | FAIL | NOT-APPLICABLE
 ### Verdict
 ```
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-7 issue's "Close gate" section. Phase-7 findings are uniformly HIGH (static-scrapable patterns + active wave of competitor Abmahnungen).
+
+### 7a. Bestellbutton
+
+- [ ] Every checkout-flow submit button has a visible label matching the compliant-text table above (verbatim or BGH-approved equivalent). Non-compliant entries in the table appear nowhere in production JSX.
+- [ ] No `aria-label` override on a checkout button changes the accessibility text to a non-compliant phrase.
+- [ ] Pre-contractual Art. 246a EGBGB information (total price incl. VAT, delivery/processing, payment method, Widerrufs link) renders immediately before the button on every checkout page.
+- [ ] Re-audit of phase 7a: zero non-compliant buttons.
+
+### 7b. Kündigungsbutton
+
+- [ ] Public-route Kündigungsbutton exists, reachable from the homepage without authentication.
+- [ ] Button label is "Verträge hier kündigen", "Vertrag kündigen", or unambiguous equivalent. Specifically not "Kündigungswunsch", "Kündigung beantragen", "Kündigung wünschen" — these are FAIL per OLG Schleswig 6 U 42/25.
+- [ ] Cancellation flow requires only data necessary to identify the contract. No login wall, no winback interstitial gating the cancellation submit, no "are you sure" multi-step funnel.
+- [ ] § 312k(2) BGB post-submit confirmation is sent.
+- [ ] Cancellation flow walked end-to-end (Playwright spec or manual) on the production URL without errors. Errors in this flow fall in the operator's sphere of responsibility — they FAIL the gate even if "technical".
+- [ ] Re-audit of phase 7b: button present, label compliant, unauthenticated path works.
+
+### 7c. Electronic Widerrufsbutton (audit run after 19.06.2026)
+
+- [ ] In-product Widerrufsbutton implemented for B2C distance contracts, reachable without authentication, mirroring Kündigungsbutton shape.
+- [ ] Triggers the same 14-day withdrawal mechanism as the paper form.
+
+### Regression guard (HIGH — all of 7a/7b/7c)
+
+- [ ] Playwright spec committed AND wired into CI that walks (a) the checkout flow asserting button text matches the compliant table, (b) the public-route Kündigungsbutton existence + label + unauthenticated reachability, (c) post-19.06.2026 the Widerrufsbutton equivalent. Name the spec path in the close comment.
+
 ## Citation chain
 
 - Bestellbutton → § 312j(3) BGB

@@ -105,6 +105,24 @@ Status: PASS | PASS-WITH-NOTES | FAIL
 ### Verdict
 ```
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-4 issue's "Close gate" section. A phase-4 finding may only be closed when ALL apply:
+
+- [ ] Every external service detected in the code-grep table appears as a `sub-processors.ts` entry, with `name` / `purpose` / `location` / `transferBasis` / `dpa` fields populated (no placeholders, no `unknown`).
+- [ ] Every `sub-processors.ts` entry has a code-level call that justifies its presence (zombies removed, not just commented out).
+- [ ] Every entry's region claim is backed by `compliance.yml -> sub_processor_regions_verified[<service>]` with a `verified_on` date within the last 12 months. Region claims without a verification record are not allowed to close — they are the exact loophole this phase exists to detect.
+- [ ] The Datenschutzerklärung's rendered sub-processor section lists every entry from `sub-processors.ts` (or pulls the list dynamically — verify the render).
+- [ ] Re-audit of phase 4 with the toolkit at HEAD: zero undisclosed processors, zero zombies, zero stale region verifications.
+
+### Lifecycle-state loophole
+
+- [ ] No `sub-processors.ts` entry has `transferBasis: "pending"`, `dpa: "pending"`, or `location: "tbd"`. If lifecycle markers were used during remediation, a deploy-time gate rejects them.
+
+### Regression guard (HIGH)
+
+- [ ] CI step that re-runs the outbound-API grep table and fails the build if any service appears in code without a matching entry in `sub-processors.ts`. Name the script in the close comment.
+
 ## Citation chain
 
 - Sub-processor disclosure → Art. 13(1)(e) + Art. 28 DSGVO

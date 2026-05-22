@@ -111,6 +111,35 @@ Today vs 02.08.2026: ...
 ### Verdict
 ```
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-8 issue's "Close gate" section. Phase-8 is per-surface — every AI surface in the codebase has its own gate, and closing the gate for one surface does not close it for the others. Adding a new AI surface re-triggers this phase against that surface independently.
+
+For each AI surface flagged in the audit, the finding closes only when ALL apply:
+
+- [ ] AI surface catalogued in the audit-run report with: surface name, type (chatbot / one-shot transform / generation / search), user-facing flag, reviewer (operator / end-user / nobody), and the specific Art. 50 paragraph that applies.
+- [ ] If Art. 50(1) applies AND the obvious-from-context carve-out does NOT clearly apply: an in-UI disclosure ("Du sprichst mit einem KI-System" or equivalent) is rendered on first interaction. Disclosure screenshot captured in the close comment.
+- [ ] If the surface relies on the **editorial-responsibility carve-out** (Art. 50(4) second subparagraph), all three of the following are in place AND verified for THIS specific surface (not just "the project has them somewhere"):
+  - [ ] Acceptance-log table named in the close comment (e.g. `ai_text_acceptance_log`). It records `ai_suggestion`, `final_text`, `was_edited`, `accepted_at`, `user_id` per acceptance event triggered from THIS surface.
+  - [ ] UI responsibility note visible on THIS surface itself ("Du bist verantwortlich für den finalen Text — bitte prüfen, bevor du übernimmst." or equivalent). Screenshot showing the note on this exact surface.
+  - [ ] Datenschutz section cites Art. 50(4) sentence 2 explicitly and states the user-holds-editorial-responsibility position. Datenschutz quote captured in the close comment.
+- [ ] If the surface generates AI images of recognisable real persons: Art. 50(4) first sentence deep-fake disclosure rendered adjacent to the image at display time.
+- [ ] Re-audit of phase 8 against THIS surface: catalogue entry present, evidence pieces all present, screenshots / quotes attached.
+
+### Per-surface scoping (mandatory)
+
+A close on this issue does NOT close the gate for any other AI surface. The orchestrator emits one issue per AI surface; closing one surface's issue does not affect siblings.
+
+- [ ] The audit-run report's "AI surfaces catalogue" lists every current AI surface; this issue addresses exactly one row. Other rows have their own issues (or are themselves PASS).
+
+### Lifecycle-state loophole
+
+- [ ] No AI surface in the codebase has acceptance-logging gated on a feature flag in `pending-*` / `provisional` state without a release-blocking assertion that the flag is on in production. Logging-disabled-in-prod is equivalent to no logging.
+
+### Regression guard (per surface)
+
+- [ ] A Playwright spec OR runtime assertion exists for THIS surface that asserts (a) the UI responsibility note renders, (b) the acceptance-log row is written on accept. Name the spec/assertion in the close comment. Without this, a future refactor can silently strip the carve-out evidence and the next audit will re-detect.
+
 ## Citation chain
 
 - Art. 50 + Recital 134 + Art. 113 phase-in → Reg. (EU) 2024/1689

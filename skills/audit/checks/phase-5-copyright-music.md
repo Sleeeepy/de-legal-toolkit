@@ -117,6 +117,32 @@ PASS = zero NULL-license rows, zero post-1955-composer CC0 entries, valid /bildn
 FAIL = any of the above outstanding.
 ```
 
+## Close gate
+
+Lifted verbatim by the sink into each phase-5 issue's "Close gate" section. A phase-5 finding may only be closed when ALL apply:
+
+- [ ] DB query: `SELECT COUNT(*) FROM works WHERE license IS NULL OR source_url IS NULL OR composer_death_year IS NULL` returns **0**. No null-license, null-source, or null-composer-death-year rows remain.
+- [ ] DB query: zero rows with `license LIKE '%CC0%' OR license LIKE '%public domain%'` AND `composer_death_year > 1955`. Each pre-existing row resolved (re-licensed, re-sourced, or removed) — not marked with a placeholder status.
+- [ ] Bearbeitungen (entries with `arr.`, `arranged`, etc. in title): each verified against arranger death year + 70 years, or removed.
+- [ ] Sample of 20 random rows: each `source_url` resolves, and the source page's stated license matches the row's `license` field. Sample executed manually and timestamped.
+- [ ] `/bildnachweise` (or `/quellen`) page lists every upstream source (IMSLP, Mutopia, PDMX, etc.) and the corresponding license.
+- [ ] Re-audit of phase 5: zero blocker rows.
+
+### Infrastructure vs data
+
+Most phase-5 findings split cleanly. Infrastructure-only close is NOT a close.
+
+- [ ] Infrastructure: schema columns + validator + ingest pipeline reject rows lacking license / source / composer death year going forward.
+- [ ] Data: every one of the N existing rows flagged by the audit re-checked by hand or by a verified script; placeholder values (`license = "unknown"`, `source_url = null`) do not count as resolved.
+
+### Lifecycle-state loophole
+
+- [ ] No row has `license = 'unknown'`, `source_url IS NULL`, or `status IN ('pending-verification', 'provisional', 'placeholder')` in production. If such markers were introduced during ingest, a release-blocking script asserts they are zero before deploy.
+
+### Regression guard (HIGH)
+
+- [ ] CI step that re-runs the NULL-license + CC0-post-1955 queries against a production-mirror DB on every release candidate and fails the release on any hit. Name the script in the close comment.
+
 ## Citation chain
 
 - 70-years-pma rule → § 64 UrhG
