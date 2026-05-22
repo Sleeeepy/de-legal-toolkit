@@ -86,7 +86,41 @@ Single markdown report with one section per phase:
 - {anything that doesn't fit the table}
 ```
 
-Final section: aggregated punch list ranked by severity (`high` → `low`) with file paths and one-line action per item. This is the artifact the user (or an AFK agent) can ship as a PR.
+Final section: aggregated punch list ranked by severity (`high` → `low`) with file paths and one-line action per item, **followed by a structured `close_when:` block per finding** so the sink can lift conditions verbatim without paraphrasing.
+
+````markdown
+- [ ] **<finding>** — <one-line action> *<citation>* → #<issue>
+
+  ```yaml
+  close_when:
+    - check: <playbook bullet, verbatim from checks/phase-N-*.md>
+    - validator: <scripts/path-or-CI-step>
+      expect: exit-0
+    - sample:
+        n: 10
+        check: <what each sampled item must satisfy>
+    - re_audit:
+        phase: <N>
+        expect: finding-not-detected
+    # HIGH-severity findings additionally require:
+    - regression_guard:
+        artifact: <path/to/validator|CI-step|playwright-spec>
+        why: prevents silent re-emergence on next audit run
+    # When a lifecycle marker is introduced as part of remediation:
+    - deploy_gate:
+        rejects: [pending-*, provisional, unverified, draft]
+        location: <CI-step or runtime-assertion file>
+    # When infrastructure and data are both involved:
+    - infrastructure: <named artifact landed>
+    - data:
+        total: <count>
+        remediated_with_non_placeholder: <count>
+        sample_n: <N>
+        sample_clean: true
+  ```
+````
+
+The punch list is the audit-run's source of truth. Every issue body is one rendering of one row, and the `close_when:` block is what the sink lifts into the issue's Close gate section. This is why the orchestrator emits the block at report time, not the sink at create time — the report is reproducible; the sink is incidental.
 
 **Required:** the report must also include a fixed-bucket "Catalogue does NOT cover" section near the verdict, so the report stays honest about its scope. The catalogue is deliberately violation-driven; absence of findings ≠ absence of risk. Five fixed lines:
 
@@ -115,7 +149,37 @@ Final section: aggregated punch list ranked by severity (`high` → `low`) with 
 
 This section is non-negotiable in the output. It keeps the verdict honest without inflating finding counts.
 
-### 5. Sink routing
+### 5. Lifecycle states are loopholes
+
+Any schema field, status enum, or contract value with a `pending-*`, `provisional`, `unverified`, `draft`, or similar lifecycle marker MUST be paired with a deploy-time gate that rejects those values in production. Otherwise the marker is a closing loophole: an AC like "all N items have a sidecar conforming to the schema" can be satisfied by N placeholders with `status: pending-verification`, the original finding stays present, and the issue closes green.
+
+This is broadly applicable — same shape as TODO comments without dated owners, feature flags without expiry, draft documents linked from production navigation.
+
+How to surface this as a finding:
+- When a phase check observes a remediation pattern that introduces a lifecycle value (e.g. Phase 6 sidecars with `status: pending-re-source`), the phase MUST also check for a corresponding deploy-time gate.
+- If no gate exists: raise as a finding in its own right — title `lifecycle-state without deploy-time gate at <file:line>`, severity HIGH (it nullifies the remediation it accompanies).
+- If a gate exists: cite it in the Close gate's lifecycle-loophole subsection so the closer can verify it's still wired in.
+
+### 6. Infrastructure findings vs data findings
+
+A finding like *"N existing assets lack attribution sidecars"* is actually two pieces of work bundled into one row:
+
+- **Infrastructure**: schema, validator, generator script, agent prompt.
+- **Data**: back-populate sidecars for each of the N existing items with verified provenance.
+
+Infrastructure is small, visible, tempting to ship first. Data is grindy, easy to defer, easy to satisfy with placeholders. Bundling them into one issue with one AC almost always closes against the infrastructure layer alone.
+
+**Heuristic for the orchestrator**: when emitting a finding, if both of these hold —
+- existing-items count > 0
+- current-coverage = 0 (or the remediation requires per-item work, not a schema fix)
+
+— split into two issues, OR emit a single issue whose Close gate has separate `infrastructure:` and `data:` bullets with independently-tickable criteria. The sink renders both; the closer cannot tick the issue closed by addressing only one.
+
+### 7. PASS-WITH-NOTES vs FAIL — operational weight
+
+The per-phase verdict (`PASS / PASS-WITH-NOTES / FAIL / NOT-APPLICABLE`) carries operational weight that the per-finding row should inherit. A finding raised within a `FAIL` phase should ship with stricter close-gate templates (regression guard required, infrastructure/data split required when applicable) than a finding within a `PASS-WITH-NOTES` phase. The orchestrator carries this forward by setting the `close_gate_strictness_override:` field on `FAIL`-phase findings to `strict` regardless of the project's default.
+
+### 8. Sink routing
 
 After producing the aggregated report, route per-finding output to the configured sink. Read `compliance.yml -> audit_output.sink`:
 
@@ -193,6 +257,8 @@ User: "re-run phase 3"
 3. **Run a phase whose `applies: false` in `compliance.yml`.** Trust the project to know whether it has Stripe / music library / AI features. Don't second-guess.
 4. **Cite a finding marked `status: superseded` or `status: withdrawn` in `findings/lifecycle.json`.** Even if the original check file still references it. Stale citations damage credibility.
 5. **Re-run all 8 phases when only 1 is relevant.** Refresh audits should target only the phases the new finding affects.
+6. **Paraphrase the playbook into the issue body.** The Close gate section is lifted verbatim from `checks/phase-N-*.md`. Every paraphrase from playbook → report → issue → ticket AC dilutes the original rigor, and the gap is where closure-on-placeholders happens. The sink renders; it does not author.
+7. **Close a finding without re-running its phase.** Closing an `[audit]` issue is the natural moment to verify the finding is actually gone. Either wire a repo-level hook (preferred — see sink docs) or run `/audit phase-N` by hand before merging the close-PR. "I shipped the fix" is not equivalent to "the next audit doesn't re-detect it".
 
 ### Common mistakes:
 
