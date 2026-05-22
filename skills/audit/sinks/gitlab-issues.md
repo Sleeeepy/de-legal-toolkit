@@ -30,7 +30,17 @@ Identical to GitHub-issues sink:
 
 ## Body template
 
-Identical to GitHub-issues sink. GitLab Markdown renders the same.
+Identical to GitHub-issues sink. GitLab Markdown renders the same — including the Close gate section, lifecycle-loophole subsection, HIGH-severity regression-guard subsection, and infrastructure/data split. See `github-issues.md` → "Body template" and "Close-gate provenance".
+
+## Close-gate strictness
+
+Same knob as the GitHub-issues sink, read from `compliance.yml -> audit_output.close_gate_strictness`. Default `strict`. Values: `strict`, `severity-scaled`, `advisory`, `off`. See `github-issues.md` for semantics.
+
+## Re-audit-on-close hook
+
+GitLab equivalent of the GitHub-Actions hook: a GitLab CI pipeline triggered by `issues.close` (via webhook) that runs `/audit phase-N` for the phase named in the closed issue's title. If the finding re-detects, the pipeline reopens the issue and applies the `false-close` label.
+
+For self-hosted GitLab, the webhook target is the project's CI runner; for gitlab.com, the simplest option is a scheduled re-audit pipeline that compares closed-since-last-run issues against current findings and reopens mismatches.
 
 ## LOW-severity collapse
 

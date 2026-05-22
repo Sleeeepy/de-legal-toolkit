@@ -70,9 +70,36 @@ Examples:
 
 <or, for runtime findings: HAR fragment / cookie dump excerpt>
 
-## Recommended action
+## Close gate
 
-<one paragraph: what should the project DO about this?>
+This issue may only be closed when ALL bullets below are demonstrably true. Closing on "satisfies literal text" is not closing — paraphrased AC has historically allowed placeholder remediations (e.g. lifecycle markers like `pending-verification` shipped at scale) to satisfy the wording while leaving the original finding present.
+
+<bullets lifted **verbatim** from the matching `checks/phase-N-*.md` "Close gate" section. Do NOT paraphrase. If the check file has no Close gate section, fall back to its "What to check" bullets and flag the gap in the audit-run report.>
+
+- [ ] <check bullet 1 from playbook>
+- [ ] <check bullet 2 from playbook>
+- [ ] Re-audit of phase <N> with the toolkit at HEAD: this finding no longer detected.
+
+### Lifecycle-state loophole
+
+If the remediation introduces any `pending-*`, `provisional`, `unverified`, `draft`, or similar lifecycle value into a schema, contract, status enum, or data model:
+
+- [ ] A deploy-time gate (CI check, runtime assertion, or release-blocking script) rejects those values in production.
+
+Without that gate, the lifecycle marker is a way to satisfy the literal close gate while leaving the original finding present. The audit will re-detect.
+
+### HIGH-severity regression guard <only-render-for-HIGH>
+
+HIGH findings require a named, committed regression guard. A free-form fix is not enough — without a guard the next audit will re-detect the finding and this issue should auto-reopen.
+
+- [ ] Regression guard committed: `<path/to/validator | CI step | Playwright spec | runtime assertion>`. Names the file/step. "We'll be careful" is not a guard.
+
+### Infrastructure vs data <only-render-when-both-apply>
+
+When the finding mixes infrastructure (schema, validator, generator) with data (back-populating N existing rows / files / records), the gate splits into two independently-tickable groups. Closing on infrastructure alone is not closing.
+
+- [ ] Infrastructure: <named artifact landed — validator, schema, generator>
+- [ ] Data: <count> of <count> existing items remediated with non-placeholder values. Sampling check: <N> randomly-drawn items inspected by hand, zero placeholders.
 
 ## Context
 
@@ -83,6 +110,25 @@ Examples:
 ---
 *This issue was created by the [de-legal-toolkit](https://github.com/Sleeeepy/de-legal-toolkit) audit skill. Edit freely; the next run will re-detect and update.*
 ```
+
+### Close-gate provenance
+
+The Close-gate bullets are not authored at sink time — they are **lifted verbatim** from the matching `checks/phase-N-*.md` "Close gate" section. The check file is the source of truth; the sink renders one row of the audit-run report into an issue body. If the check file's Close gate changes between runs, dedupe will update the issue body and a comment will note the change.
+
+If the audit-run report includes a structured `close_when:` block for this finding (see `SKILL.md` → output schema), the sink should prefer that block over the generic phase Close gate — it carries finding-specific details (file paths, validator names, sample sizes) the phase-level bullets can't.
+
+### Re-audit-on-close hook (recommended)
+
+Closing an `[audit]` issue should trigger a re-run of the relevant phase. Two options:
+
+1. **Repo-level**: a GitHub Actions workflow listening for `issues.closed` on issues with the `compliance` label, which runs the phase named in the title (`phase-N`) and posts a comment with the result. If the finding re-detects, the workflow reopens the issue with a `false-close` label.
+2. **Local**: the operator runs `/audit phase-N` after closing and reads the verdict before merging the close-PR.
+
+Without a hook of some kind, closed-but-not-actually-fixed issues sit green between scheduled audits. The repo-level option is preferred; the local option is acceptable for small teams.
+
+### Severity threshold vs close-gate strictness
+
+These are **separable** knobs in `compliance.yml`. See `audit_output.close_gate_strictness`. Severity threshold controls *issue creation*; close-gate strictness controls how aggressive the rendered close gate is for issues that do get created.
 
 ## LOW-severity collapse
 
@@ -102,6 +148,16 @@ Read `compliance.yml -> audit_output.severity_threshold`. Default `medium`. Poss
 - `high` — only HIGH gets issues; MEDIUM + LOW collapse into "audit notes"
 - `medium` — HIGH + MEDIUM get issues; LOW collapses (default)
 - `low` — every finding gets its own issue (noisy)
+
+## Close-gate strictness
+
+Read `compliance.yml -> audit_output.close_gate_strictness`. Default `strict`. Possible values:
+- `strict` — every issue body includes the Close gate section, lifecycle-loophole subsection, regression-guard subsection (HIGH only), and infra/data split (when both apply). Default and recommended.
+- `severity-scaled` — Close gate rendered on all issues; regression-guard subsection only on HIGH; lifecycle/infra-data subsections only when the orchestrator detects they apply.
+- `advisory` — Close gate rendered but flagged as advisory ("These conditions are recommended but not enforced for close."). Avoid except for legacy projects mid-migration.
+- `off` — fall back to the legacy free-form "Recommended action" paragraph. NOT recommended; documented only so the regression to old behaviour is explicit and auditable.
+
+The reason this knob is separable from `severity_threshold` is observed: a project may want every finding tracked as an issue but only HIGH findings gated with regression guards. Bundling the knobs leads to either noisy gates on LOW items or no gates on MEDIUM items.
 
 ## Assignee
 
