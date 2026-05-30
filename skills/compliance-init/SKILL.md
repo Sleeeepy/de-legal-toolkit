@@ -217,8 +217,13 @@ audit_output:
   local_markdown:
     output_dir: audit-results  # relative to project root; suggest adding to .gitignore
 
-# Per-sub-processor region claims with verification dates. The audit checks
-# these are populated and recent (< 12 months old).
+# Per-sub-processor region claims. Each entry must record the RAW vendor region
+# value, HOW it was verified (dashboard | config | api), the exact SOURCE, and a
+# date. The audit rejects entries that have a date but no method+source — that is
+# the "wrote a plausible city" loophole (e.g. claiming Resend = Frankfurt when the
+# account is eu-west-1 = Ireland). Prefer method: api when repo credentials allow a
+# programmatic, re-runnable check. Leave {} at init; the audit fills/enforces it.
+#   resend: { region: "eu-west-1", method: "api", source: "GET api.resend.com/...→region", verified_on: "2026-05-20" }
 sub_processor_regions_verified: {}
 ```
 

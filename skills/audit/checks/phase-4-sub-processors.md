@@ -39,14 +39,16 @@ Read `src/lib/legal/sub-processors.ts` (or wherever the project keeps the list).
 
 - **`name`**: matches the actual service
 - **`purpose`**: still describes what the code uses the service for (no over-disclosure, no under-disclosure)
-- **`location`**: matches the service's actual region — **must be verified in the vendor dashboard**, not just guessed
-  - Supabase: project region from Supabase dashboard
-  - Vercel: `vercel.json` regions, edge deployment
-  - Cloudflare R2: bucket jurisdiction setting
-  - Resend: account region tier
-  - Stripe: account country + data-residency claim
+- **`location`**: matches the service's actual region — **must be read from the vendor dashboard/API for THIS account**, never inferred. Record the raw region identifier the vendor reports (e.g. `eu-west-1`), then map it to a city/country using the vendor's own documentation — do not translate a region code to a city from memory, and do not let a generic "EU" claim stand in for a specific location.
+  - Supabase: project region from the Supabase dashboard (Project Settings → General). Record the raw code, e.g. `eu-central-1` (Frankfurt) vs `eu-west-1` (Ireland) vs `us-east-1`.
+  - Vercel: `vercel.json` regions / deployment region (Project Settings → Functions). Raw code, e.g. `fra1` (Frankfurt), `dub1` (Dublin).
+  - Cloudflare R2: bucket **jurisdiction** setting (`eu` / `fedramp` / default). A bucket with no jurisdiction set is **not** guaranteed EU.
+  - Resend: the account region from the Resend dashboard (Settings → General → Region). The EU tier is `eu-west-1` = **Ireland**, NOT Frankfurt. The default is `us-east-1`. Do not assume Frankfurt.
+  - Stripe: account country + any data-residency add-on (Stripe does not let you pick an EU-only region by default — US processing applies unless a residency contract says otherwise).
   - Anthropic / OpenAI: USA (default, no EU option as of 2026)
-  - Jina: Berlin, Germany
+  - Jina: Berlin, Germany — but still confirm against current vendor docs; do not carry this forward unchecked.
+
+  ⚠️ The classic mistake this phase exists to catch: writing a plausible city ("Frankfurt") because the vendor is "EU", when the account is actually in a different EU region (Ireland) or even the US. AWS region codes are the usual trap — `eu-west-1` is Ireland, `eu-central-1` is Frankfurt. Always read the code, then map it.
 - **`transferBasis`**: SCCs / DPF / Adequacy / N/A-EU. Sanity-check:
   - US-domiciled vendor → SCCs (2021/914) and/or DPF (where certified)
   - EU vendor → N/A
@@ -62,19 +64,28 @@ The Datenschutzerklärung must list (or reference) every entry from `sub-process
 
 ## Region claims — verification
 
-This is the single most common failure mode. The doc claims "EU (Frankfurt)" for Supabase; the actual project might be in `us-east-1`. To verify:
+This is the single most common failure mode. The doc claims "EU (Frankfurt)" for Supabase; the actual project might be in `us-east-1`. A `verified_on` date alone is not enough — it does not prove the value was read rather than guessed. Each entry must record **the raw region value AND where it came from**:
 
 ```yaml
 # Add to project's compliance.yml:
 sub_processor_regions_verified:
-  supabase: { region: "eu-central-1", verified_on: "2026-05-20" }
-  vercel: { region: "fra1", verified_on: "2026-05-20" }
-  r2: { jurisdiction: "EU", verified_on: "2026-05-20" }
-  resend: { region: "eu-west-1", verified_on: "2026-05-20" }
-  stripe: { country: "DE", verified_on: "2026-05-20" }
+  supabase: { region: "eu-central-1", method: "dashboard", source: "Supabase → Project Settings → General → Region", verified_on: "2026-05-20" }
+  vercel:   { region: "fra1",         method: "config",    source: "vercel.json:regions", verified_on: "2026-05-20" }
+  r2:       { jurisdiction: "EU",     method: "dashboard", source: "Cloudflare → R2 → <bucket> → Settings → Jurisdiction", verified_on: "2026-05-20" }
+  resend:   { region: "eu-west-1",    method: "api",       source: "GET https://api.resend.com/... → region field", verified_on: "2026-05-20" }
+  stripe:   { country: "DE",          method: "api",       source: "Stripe API account.country", verified_on: "2026-05-20" }
 ```
 
-The audit checks: each entry has a `verified_on` date within the last 12 months. Stale verifications FAIL.
+`method` must be one of:
+
+- **`dashboard`** — the auditor read the value in the vendor console. `source` names the exact screen path.
+- **`config`** — the region is pinned in a repo file the deploy actually uses (e.g. `vercel.json` regions). `source` is `file:field`.
+- **`api`** — **preferred when available.** If the repo already holds credentials for the vendor, query the vendor's API for the account/project region instead of trusting a dashboard read or a memory of where the account "should" be. This is reproducible and can be re-run in CI. `source` names the endpoint and the field read. Examples:
+  - Supabase: Management API `GET /v1/projects/{ref}` → `region`
+  - Resend / Stripe / R2: account or bucket metadata endpoint → region/jurisdiction field
+  - Treat the credentials as read-only; never write, and never print the secret into the issue or compliance.yml — only the returned region value.
+
+The audit checks each entry has: a non-empty raw `region`/`jurisdiction`/`country`, a `method`, a non-empty `source`, and a `verified_on` date within the last 12 months. A bare `{ region: "...", verified_on: ... }` with no `method`/`source` FAILS — that is the "wrote a plausible city" loophole.
 
 ## Output schema
 
@@ -92,9 +103,11 @@ Status: PASS | PASS-WITH-NOTES | FAIL
 
 ### Sub-processor list reconciliation
 
-| Service | In doc? | Code justifies? | Purpose match | Region claim | Region verified? | DPA |
-|---------|---------|-----------------|---------------|--------------|------------------|-----|
-| ...     | ✓       | ✓               | ✓             | EU/Frankfurt | 2026-05-20 ✓     | ✓   |
+| Service | In doc? | Code justifies? | Purpose match | Region claim | Raw region | Verify method + source | Verified on | DPA |
+|---------|---------|-----------------|---------------|--------------|------------|------------------------|-------------|-----|
+| Resend  | ✓       | ✓               | ✓             | Ireland      | eu-west-1  | api · GET /…→region    | 2026-05-20  | ✓   |
+
+The "Raw region" and "Verify method + source" columns are mandatory — an empty cell means the location was assumed and the row FAILS.
 
 ### Discrepancies
 
@@ -111,7 +124,8 @@ Lifted verbatim by the sink into each phase-4 issue's "Close gate" section. A ph
 
 - [ ] Every external service detected in the code-grep table appears as a `sub-processors.ts` entry, with `name` / `purpose` / `location` / `transferBasis` / `dpa` fields populated (no placeholders, no `unknown`).
 - [ ] Every `sub-processors.ts` entry has a code-level call that justifies its presence (zombies removed, not just commented out).
-- [ ] Every entry's region claim is backed by `compliance.yml -> sub_processor_regions_verified[<service>]` with a `verified_on` date within the last 12 months. Region claims without a verification record are not allowed to close — they are the exact loophole this phase exists to detect.
+- [ ] Every entry's region claim is backed by `compliance.yml -> sub_processor_regions_verified[<service>]` carrying the raw vendor region value (`region`/`jurisdiction`/`country`), a `method` (`dashboard` / `config` / `api`), a non-empty `source`, and a `verified_on` date within the last 12 months. A record that has a date but no `method`+`source` does NOT satisfy this gate — it cannot prove the location was read rather than assumed, which is the exact loophole this phase exists to detect.
+- [ ] The `location` string in `sub-processors.ts` is the city/country that the recorded raw region code actually maps to per vendor docs (e.g. `eu-west-1` → Ireland, not Frankfurt). A mismatch between the raw code and the disclosed city is a FAIL even if `verified_on` is fresh.
 - [ ] The Datenschutzerklärung's rendered sub-processor section lists every entry from `sub-processors.ts` (or pulls the list dynamically — verify the render).
 - [ ] Re-audit of phase 4 with the toolkit at HEAD: zero undisclosed processors, zero zombies, zero stale region verifications.
 
