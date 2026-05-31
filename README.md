@@ -134,6 +134,14 @@ The trade-off: Claude won't proactively suggest running an audit when a relevant
 
 If you'd prefer auto-suggestion for a specific skill, edit its `SKILL.md` frontmatter: remove the `User-invocable only via /X — not auto-triggered.` lead and the `invocation: user-only` metadata field, then add an `Activate on "…", "…"` trigger list. The skills work either way; the toolkit ships with the conservative default.
 
+## Design: over-collection is a finding too
+
+The catalogue is violation-driven and biased toward *missing-obligation* findings — a missing Impressum field, a pre-consent cookie, an absent Bestellbutton. For those, more compliance UI is safer, so the natural auditor instinct ("add the thing") points the right way.
+
+The opposite failure mode is easy to miss: **excess compliance theatre that is itself non-compliant.** The textbook case is a consent that shouldn't exist — an Art. 13 information duty (e.g. "Ich akzeptiere die Datenschutzerklärung") or an Art. 6(1)(b) contract step modelled as a gating, recorded Art. 6(1)(a) consent. It is harder to catch than a missing element because every symmetry check passes (the doc mentions it, the code records it, the box looks conservative) — so auditors, human or agent, keep rubber-stamping over-collection because it *looks* safe. It is a Kopplungsverbot risk (Art. 7(4)) and often a non-withdrawable pseudo-consent (Art. 7(3)).
+
+So the audit treats **a consent that shouldn't exist as as much a finding as a consent that's missing** (Phase 3b; FIND-2026-005, sourced from a real MusikMeister fix). When you see a compliance checkbox, don't only ask "is it present?" — ask "should it exist, and is it the right legal instrument?"
+
 ## Staying updated as a consumer
 
 When findings change, you decide whether your projects need re-auditing.
