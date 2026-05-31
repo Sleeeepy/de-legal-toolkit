@@ -1,7 +1,7 @@
 # Current findings — DE compliance landscape
 
-**Last updated:** 2026-05-21
-**Update mechanism:** Run `/legal-research` with a "case-law sweep" prompt; new findings get committed here after review.
+**Last updated:** 2026-05-31
+**Update mechanism:** Run `/legal-research` with a "case-law sweep" prompt; new findings get committed here after review. Findings may also land from downstream project feedback (e.g. FIND-2026-005 from the MusikMeister audit) — same review bar, citation required.
 
 This file is the canonical input to the `audit` skill. Every entry has a `status` in `lifecycle.json`.
 
@@ -40,6 +40,15 @@ This file is the canonical input to the `audit` skill. Every entry has a `status
 - **Abmahn relevance:** DEFENSIVE. Shield against fake-signup → DSAR → Art. 82 claim mills.
 - **Audit phase:** 4 (sub-processor — newsletter DOI logging), Datenschutz / DSAR SOP
 - **Action when found:** ensure newsletter signup preserves timestamp + IP + DOI trail for the abuse-defense paper trail.
+
+### FIND-2026-005 — Over-collected consent (Art. 13 / contract step gated as Art. 6(1)(a) consent)
+- **Citation:** DSK Kurzpapier Nr. 20 (Einwilligung nach der DSGVO) + DSGVO Art. 7(3)+(4), Art. 6(1)(a)/(b)/(f), Rec. 32 + 43. **Not a court ruling** — this is a regulatory-body (Datenschutzkonferenz) position + statute, so there is no single AZ. Cite the statute + Kurzpapier, same shape as FIND-WAVE-002 (§ 312j without a single AZ).
+- **Topic:** DSGVO Art. 6(1)(a) / Art. 7(3)+(4) / Art. 13
+- **Holding (position):** A consent is valid only where the legal basis genuinely *is* Art. 6(1)(a)/9(2)(a) — freely given and withdrawable. Modelling an Art. 13 information duty (e.g. acceptance of the Datenschutzerklärung) or an Art. 6(1)(b) contract step as a gating, recorded consent is over-collection: a Kopplungsverbot violation (Art. 7(4)) where the box is required, and a non-withdrawable pseudo-consent (Art. 7(3)) where the act is logically un-doable. The Datenschutzerklärung is an *information notice* — presented (linked/inline), never accepted via a gating tick.
+- **Abmahn relevance:** MEDIUM — needs runtime/context, **not statically scrapable**. Elevated for any DSGVO self-audit because it is a *false sense of compliance*: the box looks more compliant while being less so, so existing checks rubber-stamp it (symmetry holds, doc mentions it, code records it).
+- **Audit phase:** 3b (consent-kind legal-basis validity); secondary phase 2 (the signup consent surface).
+- **Action when found:** Audit each consent kind in the codebase enum 1:1. A kind that maps to Art. 6(1)(b)/(f) or a pure Art. 13 duty, or that cannot be withdrawn, is over-collection → **FAIL**. A required "Ich akzeptiere die Datenschutzerklärung" checkbox → **FAIL** (Kopplungsverbot). Remediation: convert to an inline Art. 13 notice; a version-stamp kept for the Rechenschaftspflicht trail is fine only if it no longer gates the flow as a consent.
+- **Motivating case:** MusikMeister (okapi-music), issue #95 — Datenschutz added as a gated, recorded consent kind across four signup entry points; ratified by a `/grill-me` DSGVO session citing DSK "never bundle" guidance. It passed every existing audit check yet was an over-collected, non-withdrawable pseudo-consent. Fixed 2026-05-31 by converting to an inline Art. 13 notice (version-stamp retained for Rechenschaftspflicht, not as a consent gate). Exactly the class of error the 3b check now catches.
 
 ## Historical wave-trigger baseline (still active)
 

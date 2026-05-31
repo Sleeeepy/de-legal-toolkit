@@ -37,6 +37,12 @@
       "note": "ECJ Brillen Rottler — defensive shield, not a compliance trigger."
     },
     {
+      "id": "FIND-2026-005",
+      "status": "active",
+      "since": "2026-05-31",
+      "note": "DSK Kurzpapier Nr. 20 + Art. 7(3)(4) — regulatory position, not a court ruling (no AZ). Over-collected consent: Art. 13 / Art. 6(1)(b) step gated as Art. 6(1)(a). MEDIUM, not statically scrapable. From MusikMeister issue #95."
+    },
+    {
       "id": "FIND-WAVE-001",
       "status": "pending-higher-court",
       "since": "2025-08-28",

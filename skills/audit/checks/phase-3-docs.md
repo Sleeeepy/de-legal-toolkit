@@ -51,6 +51,12 @@ The audit flags missing elements with the relevant citation; drafting the actual
 - [ ] Cookie / § 25 TDDDG storage section — strict-necessary vs consent-required distinguished
 - [ ] Joint-controller (Art. 26) essence — if joint controllership exists
 
+**Consent-kind legal-basis validity (per-kind, against the codebase enum)** — see FIND-2026-005. This is the *over-collection* check: a consent that shouldn't exist is as much a finding as a consent that's missing.
+
+- [ ] Each consent kind in the codebase enum is independently justified *as a consent* — i.e. genuinely relies on Art. 6(1)(a) / 9(2)(a), not Art. 6(1)(b) contract, Art. 6(1)(f) legitimate interest, or a pure Art. 13 information duty. A consent kind that maps to one of the latter is over-collection → **FAIL**.
+- [ ] No "Datenschutzerklärung / privacy-policy acceptance" consent exists. The Datenschutzerklärung is an Art. 13 *information notice* — it must be presented (linked, inline), never accepted via a gating tick. A required "Ich akzeptiere die Datenschutzerklärung" checkbox → **FAIL** (Kopplungsverbot, Art. 7(4)). A version-stamp kept purely for the Rechenschaftspflicht trail is fine *only if* it does not gate the flow as a consent.
+- [ ] Every recorded consent kind is genuinely withdrawable (Art. 7(3)). If withdrawal is logically impossible (e.g. "un-reading" a notice), the item is not a consent → **FAIL**. (Makes the existing withdraw-consent check bite *per-kind*, not just once for the doc.)
+
 **Special-category data (Art. 9)**: if any form collects health/pregnancy/political/biometric data, the legal basis must be Art. 9(2)(a) explicit consent (or specific § 9 BDSG exception), not Art. 6(1)(b) contract.
 
 ## 3c. AGB — § 305-310 BGB
@@ -80,7 +86,7 @@ Only applies for B2C consumer e-commerce contracts.
 
 - [ ] Operator identity consistent across all four docs
 - [ ] Sub-processor list in Datenschutz matches `sub-processors.ts` (Phase 4)
-- [ ] Consent-kinds enumerated in Datenschutz match the consent-kinds enum in the codebase
+- [ ] Consent-kinds enumerated in Datenschutz match the consent-kinds enum in the codebase. **Necessary, not sufficient**: symmetry between doc and code can hold for a kind that should not be a consent at all (doc mentions it, code records it, symmetry passes — yet it's over-collection). Run the 3b per-kind legal-basis-validity items above before treating a symmetric consent kind as compliant.
 - [ ] No stale § 5 TMG / § 25 TTDSG citations anywhere (replaced Feb 2024 by DDG / TDDDG)
 
 ## Output schema
@@ -108,6 +114,7 @@ Lifted verbatim by the sink into each phase-3 issue's "Close gate" section. The 
 - [ ] Sub-processor list in the doc matches `sub-processors.ts` 1:1 (cross-check from Phase 4).
 - [ ] Every Art. 6(1)(f) basis has its balancing test referenced (link or appendix).
 - [ ] Special-category data (Art. 9) processing, if any, uses Art. 9(2)(a) explicit consent, not Art. 6(1)(b).
+- [ ] Consent-kind enum audited 1:1 for legal-basis validity (FIND-2026-005): every kind is Art. 6(1)(a)/9(2)(a) and withdrawable. No Art. 13 information document and no Art. 6(1)(b) contract step is modelled as a gating consent. Any "Datenschutzerklärung acceptance" consent removed and re-presented as an inline Art. 13 notice.
 
 ### 3c. AGB
 
@@ -132,6 +139,7 @@ For HIGH-severity phase-3 findings (stale statutory header, missing LfDI, missin
 
 - Impressum requirements → § 5 DDG + § 18 Abs. 2 MStV + § 2 DL-InfoV
 - Datenschutz Art. 13/14 → DSGVO Art. 13 + Art. 14
+- Consent-kind validity (3b over-collection) → DSGVO Art. 6(1)(a) + Art. 7(3)+(4) + Rec. 32/43 + DSK Kurzpapier Nr. 20 (FIND-2026-005)
 - AGB fairness → § 305-310 BGB; specifically § 309 Nr. 7 for liability
 - Widerrufsbelehrung → §§ 355-356 BGB + Art. 246a EGBGB
 - Electronic Widerrufsbutton → BGB amendment effective 19.06.2026 (see findings)

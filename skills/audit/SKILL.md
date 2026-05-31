@@ -190,6 +190,14 @@ After producing the aggregated report, route per-finding output to the configure
 
 If the configured sink fails its pre-flight (e.g. `gh auth status` doesn't succeed), fall back to `local_markdown` and emit a warning in the final report. Never silently swallow findings.
 
+### 9. Over-collection is a finding too (missing vs. excess compliance)
+
+The catalogue's centre of gravity is *missing-obligation* findings — no Impressum field, a pre-consent cookie, an absent Bestellbutton. These share a property: more compliance UI is safer, so an auditor's bias toward "add the thing" is aligned with the law.
+
+There is an opposite, easily-missed failure mode: **excess compliance theatre that is itself non-compliant.** A consent that shouldn't exist (an Art. 13 information duty or an Art. 6(1)(b) contract step modelled as a gating, recorded Art. 6(1)(a) consent — see FIND-2026-005) is as much a finding as a consent that's missing. It is *harder* to catch because every symmetry check passes: the doc mentions it, the code records it, the box looks conservative. Rubber-stamping it because "more consent = safer" is the exact error.
+
+When auditing any consent gate, acceptance tick, or "compliance" checkbox, do not stop at "is it present and symmetric?" Ask **"should this exist at all, and is it the right legal instrument?"** A required tick on something that is not a freely-given, withdrawable Art. 6(1)(a)/9(2)(a) consent is over-collection — FAIL it, don't bless it. This applies beyond consent: any UI added in the name of compliance that mis-states the legal basis or couples a non-consent step to a gate is a finding in its own right.
+
 ---
 
 ## Phases
